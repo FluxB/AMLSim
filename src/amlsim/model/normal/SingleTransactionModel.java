@@ -47,5 +47,8 @@ public class SingleTransactionModel extends AbstractTransactionModel {
         int index = rand.nextInt(numBene);
         Account dest = beneList.get(index);
         this.makeTransaction(step, amount, dest);
+
+        // allow a SingleTransactionModel to make another transaction
+        this.txStep = this.startStep + rand.nextInt((int)(endStep - startStep + 1));
     }
 }
