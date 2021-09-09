@@ -3,6 +3,8 @@ package amlsim.model;
 import amlsim.Account;
 import amlsim.AMLSim;
 
+import org.apache.commons.math3.distribution.BetaDistribution;
+
 /**
  * Base class of transaction models
  */
@@ -24,6 +26,17 @@ public abstract class AbstractTransactionModel {
     protected long startStep = -1;  // The first step of transactions
     protected long endStep = -1;  // The end step of transactions
     protected boolean isSAR = false;
+
+    protected float roundAmountProbability;
+
+    final private static float roundAmountAlpha = AMLSim.getSimProp().getNormalRoundAmountAlpha();
+    final private static float roundAmountBeta = AMLSim.getSimProp().getNormalRoundAmountBeta();
+
+    public AbstractTransactionModel() {
+        // a beta distribution is used to model the round amount affinity of the actor
+        BetaDistribution betaDistribution = new BetaDistribution(roundAmountAlpha, roundAmountBeta);
+        roundAmountProbability = (float) betaDistribution.inverseCumulativeProbability(AMLSim.getRandom().nextDouble());
+    }
 
     /**
      * Get the assumed number of transactions in this simulation

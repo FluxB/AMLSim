@@ -46,7 +46,9 @@ public class SingleTransactionModel extends AbstractTransactionModel {
         float amount = getTransactionAmount();
         int index = rand.nextInt(numBene);
         Account dest = beneList.get(index);
-        this.makeTransaction(step, amount, dest);
+        this.makeTransaction(
+            step, AMLSim.getSimProp().makeTransactionMoreRealistic(amount, (float) 1.0, roundAmountProbability), dest
+        );
 
         // allow a SingleTransactionModel to make another transaction
         this.txStep = this.startStep + rand.nextInt((int)(endStep - startStep + 1));

@@ -1,6 +1,9 @@
 package amlsim.model.aml;
 
 import amlsim.Account;
+import amlsim.AMLSim;
+
+import org.apache.commons.math3.distribution.BetaDistribution;
 
 import java.util.*;
 
@@ -17,9 +20,21 @@ public class ScatterGatherTypology extends AMLTypology {
     private float scatterAmount;
     private float gatherAmount;
 
+    final private static float scatterVariance = AMLSim.getSimProp().getScatterVariance();
+    final private static float gatherVariance = AMLSim.getSimProp().getGatherVariance();
+    final private static float roundAmountAlpha = AMLSim.getSimProp().getSarRoundAmountAlpha();
+    final private static float roundAmountBeta = AMLSim.getSimProp().getSarRoundAmountBeta();
+
+    private float roundAmountProbability;
+
     ScatterGatherTypology(float minAmount, float maxAmount, int startStep, int endStep) {
         super(minAmount, maxAmount, startStep, endStep);
+
+        // a beta distribution is used to model the round amount affinity of the actor
+        BetaDistribution betaDistribution = new BetaDistribution(roundAmountAlpha, roundAmountBeta);
+        roundAmountProbability = (float) betaDistribution.inverseCumulativeProbability(AMLSim.getRandom().nextDouble());
     }
+
 
     @Override
     public void setParameters(int modelID) {
@@ -70,10 +85,16 @@ public class ScatterGatherTypology extends AMLTypology {
         for(int i=0; i<numMidMembers; i++){
             if(scatterSteps[i] == step){
                 Account _bene = intermediate.get(i);
-                makeTransaction(step, scatterAmount, orig, _bene, isSAR, alertID);
+                makeTransaction(
+                    step, AMLSim.getSimProp().makeTransactionMoreRealistic(scatterAmount, scatterVariance, roundAmountProbability),
+                    orig, _bene, isSAR, alertID
+                );
             }else if(gatherSteps[i] == step) {
                 Account _orig = intermediate.get(i);
-                makeTransaction(step, gatherAmount, _orig, bene, isSAR, alertID);
+                makeTransaction(
+                    step, AMLSim.getSimProp().makeTransactionMoreRealistic(gatherAmount, gatherVariance, roundAmountProbability),
+                     _orig, bene, isSAR, alertID
+                );
             }
         }
     }
