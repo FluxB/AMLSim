@@ -22,9 +22,6 @@ MAIN_ACCT_KEY = "main_acct"  # Main account ID (SAR typology subgraph attribute)
 IS_SAR_KEY = "is_sar"  # SAR flag (account vertex attribute)
 
 DEFAULT_MARGIN_RATIO = 0.1  # Each member will keep this ratio of the received amount
-DEFAULT_SCATTER_VARIANCE = 0.1  # Scatter transactions shouldn't be exactly identical
-DEFAULT_GATHER_VARIANCE = 0.05  # Gather transactions shouldn't be exactly identical
-DEFAULT_ROUND_AMOUNT_PROBABILITY = 0.8  # Suspicious transactions are more likely to be round
 
 
 # Utility functions parsing values
@@ -221,21 +218,8 @@ class TransactionGenerator:
 
         # The ratio of amount intermediate accounts receive
         self.margin_ratio = parse_float(default_conf.get("margin_ratio", DEFAULT_MARGIN_RATIO))
-        self.scatter_variance = parse_float(default_conf.get("scatter_variance", DEFAULT_SCATTER_VARIANCE))
-        self.gather_variance = parse_float(default_conf.get("gather_variance", DEFAULT_GATHER_VARIANCE))
-        self.round_amount_probability = parse_float(
-            default_conf.get("round_amount_probability", DEFAULT_ROUND_AMOUNT_PROBABILITY)
-        )
         if not 0.0 <= self.margin_ratio <= 1.0:
             raise ValueError("Margin ratio in AML typologies (%f) must be within [0.0, 1.0]" % self.margin_ratio)
-        if not 0.0 <= self.scatter_variance <= 1.0:
-            raise ValueError("Scatter variance in AML typologies (%f) must be within [0.0, 1.0]" % self.margin_ratio)
-        if not 0.0 <= self.gather_variance <= 1.0:
-            raise ValueError("Gather variance in AML typologies (%f) must be within [0.0, 1.0]" % self.margin_ratio)
-        if not 0.0 <= self.round_amount_probability <= 1.0:
-            raise ValueError(
-                "Round amount probability in AML typologies (%f) must be within [0.0, 1.0]" % self.margin_ratio
-            )
 
         self.default_bank_id = default_conf.get("bank_id")  # Default bank ID if not specified at parameter files
 
@@ -763,18 +747,6 @@ class TransactionGenerator:
             sub_g.add_edge(_orig, _bene, amount=_amount, date=_date)
             self.add_transaction(_orig, _bene, amount=_amount, date=_date)
 
-        def __make_sar_transaction_more_realistic(_amount, variance=None):
-            new_amount = _amount
-            if variance is not None:
-                # add variance to the transaction
-                new_amount *= random.uniform(1.0 - variance, 1.0 + variance)
-
-            # with a certain probability, make the transaction round
-            if random.uniform(0.0, 1.0) < self.round_amount_probability:
-                new_amount = (new_amount // 100) * 100
-
-            return new_amount
-
         if typology_name == "fan_in":  # fan_in pattern (multiple accounts --> single (main) account)
             main_acct, main_bank_id = add_main_acct()
             num_neighbors = num_accounts - 1
@@ -985,10 +957,8 @@ class TransactionGenerator:
             for i in range(len(mid_accts)):
                 mid_acct = mid_accts[i]
                 scatter_amount = init_amount
-                # scatter_amount = __make_sar_transaction_more_realistic(scatter_amount, self.scatter_variance)
                 margin = scatter_amount * self.margin_ratio  # Margin of the intermediate account
                 amount = scatter_amount - margin
-                # amount = __make_sar_transaction_more_realistic(amount, self.gather_variance)
                 scatter_date = random.randrange(start_date, mid_date)
                 gather_date = random.randrange(mid_date, end_date)
 

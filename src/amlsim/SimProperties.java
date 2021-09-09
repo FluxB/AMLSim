@@ -124,7 +124,7 @@ public class SimProperties {
         float new_amount = amount * getRandom( (float) 1.0 - variance, (float) 1.0 + variance);
 
         // with a certain probability, make the transaction round
-        if (getRandom(0, 1) < roundAmountProbability) {
+        if (getRandom(0, 1) < roundAmountProbability && new_amount > 100.0) {
             new_amount = (float) (Math.floor(new_amount / 100) * 100.0);
         }
 
