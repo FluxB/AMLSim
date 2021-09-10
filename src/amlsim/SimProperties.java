@@ -19,6 +19,16 @@ public class SimProperties {
     private JSONObject cashOutProp;
     private String workDir;
     private float marginRatio;  // Ratio of margin for AML typology transactions
+    private float scatterVariance;  // Scatter transactions shouldn't be exactly identical
+    private float gatherVariance;  // Gather transactions shouldn't be exactly identical
+
+    private float sarRoundAmountAlpha;  // the alpha value of the round amount BetaDistribution for SAR typologies
+    private float sarRoundAmountBeta;  // the beta value of the round amount BetaDistribution for SAR typologies
+    private float normalRoundAmountAlpha;  // the alpha value of the round amount BetaDistribution for normal actors
+    private float normalRoundAmountBeta;  // the beta value of the round amount BetaDistribution for normal actors
+
+    private float sarRoundAmountProbability;  // Suspicious transactions are more likely to be round
+    private float normalRoundAmountProbability;  // Round amount probability of 'normal' transactions
     private int seed;  // Seed of randomness
     private String simName;  // Simulation name
 
@@ -47,6 +57,13 @@ public class SimProperties {
         cashInProp = defaultProp.getJSONObject("cash_in");
         cashOutProp = defaultProp.getJSONObject("cash_out");
         marginRatio = defaultProp.getFloat("margin_ratio");
+        scatterVariance = defaultProp.getFloat("scatter_variance");
+        gatherVariance = defaultProp.getFloat("gather_variance");
+
+        sarRoundAmountAlpha = defaultProp.getFloat("sar_round_amount_alpha");
+        sarRoundAmountBeta = defaultProp.getFloat("sar_round_amount_beta");
+        normalRoundAmountAlpha = defaultProp.getFloat("normal_round_amount_alpha");
+        normalRoundAmountBeta = defaultProp.getFloat("normal_round_amount_beta");
 
         String envSeed = System.getenv("RANDOM_SEED");
         seed = envSeed != null ? Integer.parseInt(envSeed) : generalProp.getInt("random_seed");
@@ -97,7 +114,23 @@ public class SimProperties {
 //        return minTxAmount;
         return minTxAmount + AMLSim.getRandom().nextFloat() * (maxTxAmount - minTxAmount);
     }
-    
+
+    public static float getRandom(float min, float max) {
+        return min + AMLSim.getRandom().nextFloat() * (max - min);
+    }
+
+    public static float makeTransactionMoreRealistic(float amount, float variance, float roundAmountProbability) {
+        // add a certain amount of variance
+        float new_amount = amount * getRandom( (float) 1.0 - variance, (float) 1.0 + variance);
+
+        // with a certain probability, make the transaction round
+        if (getRandom(0, 1) < roundAmountProbability && new_amount > 100.0) {
+            new_amount = (float) (Math.floor(new_amount / 100) * 100.0);
+        }
+
+        return new_amount;
+    }
+
 //    public float getSuspiciousTxAmount(){
 //        return maxTxAmount;
 //    }
@@ -110,8 +143,32 @@ public class SimProperties {
 //        return simProp.getFloat("sar_balance_ratio");
 //    }
 
-    public float getMarginRatio(){
+    public float getMarginRatio() {
         return marginRatio;
+    }
+
+    public float getScatterVariance() {
+        return scatterVariance;
+    }
+
+    public float getGatherVariance() {
+        return gatherVariance;
+    }
+
+    public float getSarRoundAmountAlpha() {
+        return sarRoundAmountAlpha;
+    }
+
+    public float getSarRoundAmountBeta() {
+        return sarRoundAmountBeta;
+    }
+
+    public float getNormalRoundAmountAlpha() {
+        return normalRoundAmountAlpha;
+    }
+
+    public float getNormalRoundAmountBeta() {
+        return normalRoundAmountBeta;
     }
 
     int getNumBranches(){

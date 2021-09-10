@@ -40,7 +40,9 @@ public class MutualTransactionModel extends AbstractTransactionModel {
             this.account.addBeneAcct(counterpart);    // Add a new destination
         }
 
-        makeTransaction(step, amount, counterpart);
+        makeTransaction(
+            step, AMLSim.getSimProp().makeTransactionMoreRealistic(amount, (float) 1.0, roundAmountProbability), counterpart
+        );
     }
 
 }

@@ -1,13 +1,18 @@
 package amlsim.model.normal;
 
+import amlsim.AMLSim;
 import amlsim.Account;
 import amlsim.model.AbstractTransactionModel;
+
+import java.util.Random;
 
 
 /**
  * Send money to neighbors periodically
  */
 public class PeriodicalTransactionModel extends AbstractTransactionModel {
+
+    private static Random rand = AMLSim.getRandom();
 
     private int index = 0;
 
@@ -38,7 +43,9 @@ public class PeriodicalTransactionModel extends AbstractTransactionModel {
         }
 
         int totalCount = getNumberOfTransactions();  // Total number of transactions
-        int eachCount = (numDests < totalCount) ? 1 : numDests / totalCount;
+        // int eachCount = (numDests < totalCount) ? 1 : numDests / totalCount;
+
+        int eachCount = rand.nextInt(numDests) + 1;
 
         for(int i=0; i<eachCount; i++) {
             float amount = getTransactionAmount();  // this.balance;

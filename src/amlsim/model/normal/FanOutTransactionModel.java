@@ -45,7 +45,9 @@ public class FanOutTransactionModel extends AbstractTransactionModel {
 
         amount = ModelParameters.adjustAmount(account, bene, amount);
         if(amount > 0) {
-            this.makeTransaction(step, amount, bene);
+            this.makeTransaction(
+                step, AMLSim.getSimProp().makeTransactionMoreRealistic(amount, (float) 1.0, roundAmountProbability), bene
+            );
         }
         index++;
     }

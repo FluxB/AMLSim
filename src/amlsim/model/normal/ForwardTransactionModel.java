@@ -3,6 +3,8 @@ package amlsim.model.normal;
 import amlsim.Account;
 import amlsim.model.AbstractTransactionModel;
 
+import amlsim.*;
+
 import java.util.*;
 
 /**
@@ -40,7 +42,9 @@ public class ForwardTransactionModel extends AbstractTransactionModel {
             index = 0;
         }
         Account dest = dests.get(index);
-        this.makeTransaction(step, amount, dest);
+        this.makeTransaction(
+            step, AMLSim.getSimProp().makeTransactionMoreRealistic(amount, (float) 1.0, roundAmountProbability), dest
+        );
         index++;
     }
 }

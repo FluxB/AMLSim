@@ -268,6 +268,7 @@ class TransactionGenerator:
 
         self.tx_types = get_types(os.path.join(self.input_dir, self.type_file))
 
+
     def check_hub_exists(self):
         """Validate whether one or more hub accounts exist as main accounts of AML typologies
         """

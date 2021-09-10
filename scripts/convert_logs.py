@@ -433,8 +433,8 @@ class Schema:
         row[self.acct_bank_idx] = bank_id
 
         for name, value in attr.items():
-            if name in self.acct_name2idx:
-                idx = self.acct_name2idx[name]
+            if name.lower() in self.acct_name2idx:
+                idx = self.acct_name2idx[name.lower()]
                 row[idx] = value
 
         for idx, v_type in enumerate(self.acct_types):
