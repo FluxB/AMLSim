@@ -6,8 +6,9 @@
     "base_date": "2017-01-01"
   },
   "default": {
-    "min_amount": 100,
+    "min_amount": 25,
     "max_amount": 1000,
+    "max_amount_range": 2000,
     "min_balance": 50000,
     "max_balance": 100000,
     "start_step": -1,
@@ -17,7 +18,10 @@
     "transaction_model": 1,
     "margin_ratio": 0.1,
     "scatter_variance": 0.1,
-    "gather_variance": 0.05,
+    "gather_variance": 0.2,
+    "start_bias_range": 20,
+    "amount_alpha": 2.0,
+    "amount_beta": 15.0,
     "sar_round_amount_alpha": 2.0,
     "sar_round_amount_beta": 2.0,
     "normal_round_amount_alpha": 2.0,

@@ -1,11 +1,22 @@
-count,min_balance,max_balance,country,business_type,model,bank_id,comment
-704,1000,100000,US,I,0,bank,normal individual
-125,5000,100000,CA,I,0,bank2,CA accounts (will be involved in fan in fan out)
-125,5000,100000,MX,I,0,bank3, MX accounts (will be involved in fan in fan out)
-10,20000,1000000,US,B,0,bank,business with varying customers (like a car seller)
-5,20000,1000000,CA,B,0,bank,business with varying customers (like a car seller)
-10,50000,100000,US,I,2,bank,business with recurring incomes
-1,50000,100000,US,I,4,bank,trusted accounts doing forward trx
-10,50000,100000,US,I,5,bank,business paying out salary
-5,50000,100000,CA,I,5,bank,business paying out salary
-5,50000,100000,MX,I,5,bank,business paying out salary
+count,min_balance,max_balance,country,business_type,model,bank_id
+54,1000,100000,US,I,0,bank
+25,5000,100000,CA,I,0,bank2
+25,5000,100000,MX,I,0,bank3
+150,1000,100000,US,I,1,bank
+150,1000,100000,US,I,1,bank4
+50,1000,100000,CA,I,1,bank2
+50,1000,100000,MX,I,1,bank3
+50,1000,100000,US,I,2,bank
+25,1000,100000,CA,I,2,bank2
+25,1000,100000,MX,I,2,bank3
+50,20000,1000000,US,I,2,bank
+50,20000,1000000,US,I,2,bank4
+5,20000,1000000,CA,I,2,bank2
+100,50000,100000,US,I,2,bank
+26,50000,100000,US,I,4,bank
+100,1000,100000,US,I,5,bank
+15,1000,100000,CA,I,5,bank2
+10,1000,100000,MX,I,5,bank3
+30,50000,100000,US,I,5,bank
+5,50000,100000,CA,I,5,bank2
+5,50000,100000,MX,I,5,bank3

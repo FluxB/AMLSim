@@ -43,7 +43,7 @@ public class SingleTransactionModel extends AbstractTransactionModel {
             return;
         }
 
-        float amount = getTransactionAmount();
+        float amount = getTransactionAmount(maxTxAmount);
         int index = rand.nextInt(numBene);
         Account dest = beneList.get(index);
         this.makeTransaction(
