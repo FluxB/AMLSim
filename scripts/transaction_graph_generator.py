@@ -11,6 +11,7 @@ import json
 import os
 import sys
 import logging
+import math
 from collections import Counter, defaultdict
 
 logging.basicConfig(level=logging.INFO)
@@ -213,6 +214,7 @@ class TransactionGenerator:
         self.default_start_step = parse_int(default_conf.get("start_step"))
         self.default_end_step = parse_int(default_conf.get("end_step"))
         self.default_start_range = parse_int(default_conf.get("start_range"))
+        self.default_start_bias_range = parse_int(default_conf.get("start_bias_range"))
         self.default_end_range = parse_int(default_conf.get("end_range"))
         self.default_model = parse_int(default_conf.get("transaction_model"))
 
@@ -267,7 +269,6 @@ class TransactionGenerator:
             return tx_types
 
         self.tx_types = get_types(os.path.join(self.input_dir, self.type_file))
-
 
     def check_hub_exists(self):
         """Validate whether one or more hub accounts exist as main accounts of AML typologies
@@ -711,7 +712,15 @@ class TransactionGenerator:
         else:
             is_external = False
 
-        start_date = random.randrange(0, self.total_steps - period)
+        if typology_name == "fan_in" and self.default_start_bias_range > 0:
+            # we model p(x) = 1 / d * exp(-1 / d * x), with d = startBiasRange
+            # the cumulative distribution is then: c(x) = 1 - exp(-1 / d * x)
+            c = random.random()
+            start_date = int(-math.log(1.0 - c) * self.default_start_bias_range)
+            start_date = min(start_date, self.total_steps - period)
+        else:
+            start_date = random.randrange(0, self.total_steps - period)
+
         end_date = start_date + period - 1
 
         # Create subgraph structure with transaction attributes

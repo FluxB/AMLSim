@@ -5,8 +5,12 @@
 package amlsim.model.aml;
 
 import amlsim.Account;
+import amlsim.AMLSim;
+
+import org.apache.commons.math3.distribution.BetaDistribution;
 
 import java.util.*;
+import java.lang.*;
 
 /**
  * Multiple accounts send money to the main account
@@ -22,8 +26,18 @@ public class FanInTypology extends AMLTypology {
     private static final int FIXED_INTERVAL = 2;
     private static final int RANDOM_RANGE = 3;
 
+    final private static float gatherVariance = AMLSim.getSimProp().getGatherVariance();
+    final private static float roundAmountAlpha = AMLSim.getSimProp().getSarRoundAmountAlpha();
+    final private static float roundAmountBeta = AMLSim.getSimProp().getSarRoundAmountBeta();
+
+    private float roundAmountProbability;
+
     FanInTypology(float minAmount, float maxAmount, int start, int end){
         super(minAmount, maxAmount, start, end);
+
+        // a beta distribution is used to model the round amount affinity of the actor
+        BetaDistribution betaDistribution = new BetaDistribution(roundAmountAlpha, roundAmountBeta);
+        roundAmountProbability = (float) betaDistribution.inverseCumulativeProbability(AMLSim.getRandom().nextDouble());
     }
 
     public void setParameters(int schedulingID){
@@ -40,23 +54,26 @@ public class FanInTypology extends AMLTypology {
         int numOrigs = origList.size();
         int totalStep = (int)(endStep - startStep + 1);
         int defaultInterval = Math.max(totalStep / numOrigs, 1);
+
         this.startStep = generateStartStep(defaultInterval);  //  decentralize the first transaction step
 
         steps = new long[numOrigs];
         if(schedulingID == SIMULTANEOUS){
             long step = getRandomStep();
             Arrays.fill(steps, step);
-        }else if(schedulingID == FIXED_INTERVAL){
+        }else if(schedulingID == FIXED_INTERVAL chec) {
             int range = (int)(endStep - startStep + 1);
             if(numOrigs < range){
                 interval = range / numOrigs;
                 for(int i=0; i<numOrigs; i++){
                     steps[i] = startStep + interval*i;
+                    System.out.println("step " + this.steps[i]);
                 }
             }else{
                 long batch = numOrigs / range;
                 for(int i=0; i<numOrigs; i++){
                     steps[i] = startStep + i/batch;
+                    System.out.println("step " + this.steps[i]);
                 }
             }
         }else if(schedulingID == RANDOM_RANGE){
@@ -65,11 +82,6 @@ public class FanInTypology extends AMLTypology {
             }
         }
     }
-
-//    @Override
-//    public int getNumTransactions() {
-//        return alert.getMembers().size() - 1;
-//    }
 
     @Override
     public String getModelName() {
@@ -84,7 +96,10 @@ public class FanInTypology extends AMLTypology {
         for(int i = 0; i< origList.size(); i++){
             if(steps[i] == step){
                 Account orig = origList.get(i);
-                makeTransaction(step, amount, orig, bene, isSAR, alertID);
+                makeTransaction(
+                    step, AMLSim.getSimProp().makeTransactionMoreRealistic(amount, gatherVariance, roundAmountProbability),
+                    orig, bene, isSAR, alertID
+                );
             }
         }
     }

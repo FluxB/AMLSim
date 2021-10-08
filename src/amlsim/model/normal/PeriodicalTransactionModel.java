@@ -48,9 +48,11 @@ public class PeriodicalTransactionModel extends AbstractTransactionModel {
         int eachCount = rand.nextInt(numDests) + 1;
 
         for(int i=0; i<eachCount; i++) {
-            float amount = getTransactionAmount();  // this.balance;
+            float amount = getTransactionAmount(maxTxAmount);  // this.balance;
             Account dest = this.account.getBeneList().get(index);
-            this.makeTransaction(step, amount, dest);
+            this.makeTransaction(
+                step, AMLSim.getSimProp().makeTransactionMoreRealistic(amount, (float) 1.0, roundAmountProbability), dest
+            );
             index++;
             if(index >= numDests) break;
         }

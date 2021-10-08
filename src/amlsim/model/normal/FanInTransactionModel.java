@@ -40,7 +40,7 @@ public class FanInTransactionModel extends AbstractTransactionModel {
         }
 
         Account orig = origs.get(index);
-        float amount = orig.getModel().getTransactionAmount();
+        float amount = orig.getModel().getTransactionAmount(maxTxAmount);
         makeTransaction(step, AMLSim.getSimProp().makeTransactionMoreRealistic(amount, (float) 1.0, roundAmountProbability),
                         orig, this.account);
         index++;

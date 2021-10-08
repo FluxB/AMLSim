@@ -4,6 +4,8 @@ import java.io.*;
 import java.nio.file.*;
 import org.json.*;
 
+import org.apache.commons.math3.distribution.BetaDistribution;
+
 
 /**
  * Simulation properties and global parameters loaded from the configuration JSON file
@@ -22,6 +24,8 @@ public class SimProperties {
     private float scatterVariance;  // Scatter transactions shouldn't be exactly identical
     private float gatherVariance;  // Gather transactions shouldn't be exactly identical
 
+    private float startBiasRange;  // If this is activated, the account start is biased towards the beginning, and levels off after startBiasRange
+
     private float sarRoundAmountAlpha;  // the alpha value of the round amount BetaDistribution for SAR typologies
     private float sarRoundAmountBeta;  // the beta value of the round amount BetaDistribution for SAR typologies
     private float normalRoundAmountAlpha;  // the alpha value of the round amount BetaDistribution for normal actors
@@ -37,6 +41,14 @@ public class SimProperties {
     private float minTxAmount;  // Minimum base (normal) transaction amount
     private float maxTxAmount;  // Maximum base (suspicious) transaction amount
 
+    private float maxTxAmountRange;  // Range of possible max tx amounts for normal actors
+
+    private float amountAlpha;
+    private float amountBeta;
+
+    protected BetaDistribution amountDistribution;
+
+
     SimProperties(String jsonName) throws IOException{
         String jsonStr = loadTextFile(jsonName);
         JSONObject jsonObject = new JSONObject(jsonStr);
@@ -51,6 +63,13 @@ public class SimProperties {
         minTxAmount = defaultProp.getFloat("min_amount");
         maxTxAmount = defaultProp.getFloat("max_amount");
 
+        maxTxAmountRange = defaultProp.getFloat("max_amount_range");
+
+        amountAlpha = defaultProp.getFloat("amount_alpha");
+        amountBeta = defaultProp.getFloat("amount_beta");
+
+        amountDistribution = new BetaDistribution(amountAlpha, amountBeta);
+
         System.out.printf("General transaction interval: %d\n", normalTxInterval);
         System.out.printf("Base transaction amount: Normal = %f, Suspicious= %f\n", minTxAmount, maxTxAmount);
         
@@ -59,6 +78,8 @@ public class SimProperties {
         marginRatio = defaultProp.getFloat("margin_ratio");
         scatterVariance = defaultProp.getFloat("scatter_variance");
         gatherVariance = defaultProp.getFloat("gather_variance");
+
+        startBiasRange = defaultProp.getFloat("start_bias_range");
 
         sarRoundAmountAlpha = defaultProp.getFloat("sar_round_amount_alpha");
         sarRoundAmountBeta = defaultProp.getFloat("sar_round_amount_beta");
@@ -110,9 +131,20 @@ public class SimProperties {
         return normalTxInterval;
     }
 
-    public float getNormalBaseTxAmount(){
+    public float getNormalBaseTxAmount(float maxTxAmount_){
 //        return minTxAmount;
-        return minTxAmount + AMLSim.getRandom().nextFloat() * (maxTxAmount - minTxAmount);
+        // return minTxAmount + AMLSim.getRandom().nextFloat() * (maxTxAmount - minTxAmount);
+
+        //return Math.max(
+        //        minTxAmount,
+        //        Math.min(
+        //            maxTxAmount, (float) amountDistribution.inverseCumulativeProbability(AMLSim.getRandom().nextFloat())
+        //        )
+        //    );
+
+        return minTxAmount + (maxTxAmount_ - minTxAmount) * (float) amountDistribution.inverseCumulativeProbability(
+            AMLSim.getRandom().nextFloat()
+        );
     }
 
     public static float getRandom(float min, float max) {
@@ -143,6 +175,14 @@ public class SimProperties {
 //        return simProp.getFloat("sar_balance_ratio");
 //    }
 
+    public float getMaxTxAmount(){
+        return maxTxAmount;
+    }
+
+    public float getMaxTxAmountRange() {
+        return maxTxAmountRange;
+    }
+
     public float getMarginRatio() {
         return marginRatio;
     }
@@ -153,6 +193,10 @@ public class SimProperties {
 
     public float getGatherVariance() {
         return gatherVariance;
+    }
+
+    public float getStartBiasRange() {
+        return startBiasRange;
     }
 
     public float getSarRoundAmountAlpha() {

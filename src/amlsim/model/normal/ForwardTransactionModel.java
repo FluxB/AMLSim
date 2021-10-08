@@ -28,7 +28,7 @@ public class ForwardTransactionModel extends AbstractTransactionModel {
     @Override
     public void makeTransaction(long step) {
 
-        float amount = getTransactionAmount();  // this.balance;
+        float amount = getTransactionAmount(maxTxAmount);  // this.balance;
         List<Account> dests = this.account.getBeneList();
         int numDests = dests.size();
         if(numDests == 0){

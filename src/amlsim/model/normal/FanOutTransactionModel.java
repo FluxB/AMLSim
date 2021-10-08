@@ -40,7 +40,7 @@ public class FanOutTransactionModel extends AbstractTransactionModel {
             index = 0;
         }
 
-        float amount = getTransactionAmount();
+        float amount = getTransactionAmount(maxTxAmount);
         Account bene = beneList.get(index);
 
         amount = ModelParameters.adjustAmount(account, bene, amount);

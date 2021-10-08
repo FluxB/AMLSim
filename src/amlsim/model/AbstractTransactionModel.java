@@ -5,6 +5,7 @@ import amlsim.AMLSim;
 
 import org.apache.commons.math3.distribution.BetaDistribution;
 
+
 /**
  * Base class of transaction models
  */
@@ -32,10 +33,15 @@ public abstract class AbstractTransactionModel {
     final private static float roundAmountAlpha = AMLSim.getSimProp().getNormalRoundAmountAlpha();
     final private static float roundAmountBeta = AMLSim.getSimProp().getNormalRoundAmountBeta();
 
+    protected float maxTxAmount;
+
     public AbstractTransactionModel() {
         // a beta distribution is used to model the round amount affinity of the actor
         BetaDistribution betaDistribution = new BetaDistribution(roundAmountAlpha, roundAmountBeta);
         roundAmountProbability = (float) betaDistribution.inverseCumulativeProbability(AMLSim.getRandom().nextDouble());
+
+        maxTxAmount = AMLSim.getSimProp().getMaxTxAmount() +
+                       AMLSim.getSimProp().getMaxTxAmountRange() * AMLSim.getRandom().nextFloat();
     }
 
     /**
@@ -50,9 +56,9 @@ public abstract class AbstractTransactionModel {
      * Generate the assumed amount of a normal transaction
      * @return Normal transaction amount
      */
-    public float getTransactionAmount(){
+    public float getTransactionAmount(float maxTxAmount){
         // Each transaction amount should be independent of the current balance
-        return AMLSim.getSimProp().getNormalBaseTxAmount();
+        return AMLSim.getSimProp().getNormalBaseTxAmount(maxTxAmount);
     }
     
     /**
