@@ -25,10 +25,8 @@ public class FanInTypology extends AMLTypology {
     private static final int SIMULTANEOUS = 1;
     private static final int FIXED_INTERVAL = 2;
     private static final int RANDOM_RANGE = 3;
-    private static final int FIXED_INTERVAL_BIASED_START = 4;
 
     final private static float gatherVariance = AMLSim.getSimProp().getGatherVariance();
-    final private static float startBiasRange = AMLSim.getSimProp().getStartBiasRange();
     final private static float roundAmountAlpha = AMLSim.getSimProp().getSarRoundAmountAlpha();
     final private static float roundAmountBeta = AMLSim.getSimProp().getSarRoundAmountBeta();
 
@@ -57,23 +55,13 @@ public class FanInTypology extends AMLTypology {
         int totalStep = (int)(endStep - startStep + 1);
         int defaultInterval = Math.max(totalStep / numOrigs, 1);
 
-        if (schedulingID == FIXED_INTERVAL_BIASED_START) {
-            // we model p(x) = 1/d * exp(-1/d * x), with d = startBiasRange
-            // the cumulative distribution is then: c(x) = 1 - exp(-1/d * x)
-            double c = AMLSim.getRandom().nextDouble();
-            this.startStep = (long) (-Math.log(1.0 - c) * startBiasRange);
-            if (this.startStep > endStep) {
-                this.startStep = endStep - 1;
-            }
-        } else {
-            this.startStep = generateStartStep(defaultInterval);  //  decentralize the first transaction step
-        }
+        this.startStep = generateStartStep(defaultInterval);  //  decentralize the first transaction step
 
         steps = new long[numOrigs];
         if(schedulingID == SIMULTANEOUS){
             long step = getRandomStep();
             Arrays.fill(steps, step);
-        }else if(schedulingID == FIXED_INTERVAL || schedulingID == FIXED_INTERVAL_BIASED_START) {
+        }else if(schedulingID == FIXED_INTERVAL chec) {
             int range = (int)(endStep - startStep + 1);
             if(numOrigs < range){
                 interval = range / numOrigs;
